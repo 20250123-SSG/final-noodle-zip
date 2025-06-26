@@ -41,7 +41,7 @@ public class StoreService {
         if (dto.getWeekSchedule() != null && !dto.getWeekSchedule().isEmpty()) {
             List<StoreSchedule> schedules = dto.getWeekSchedule().stream()
                     .map(s -> StoreSchedule.builder()
-                            .storeId(savedStore.getId())
+                            .store(savedStore)
                             .dayOfWeek(s.getDayOfWeek())
                             .openingAt(LocalDateTime.of(LocalDate.now(), s.getOpeningAt()))
                             .closingAt(LocalDateTime.of(LocalDate.now(), s.getClosingAt()))
@@ -55,7 +55,7 @@ public class StoreService {
         if (dto.getMenus() != null && !dto.getMenus().isEmpty()) {
             List<Menu> menus = dto.getMenus().stream()
                     .map(m -> Menu.builder()
-                            .storeId(savedStore.getId())
+                            .store(savedStore)
                             .menuName(m.getMenuName())
                             .price(m.getPrice())
                             .menuDescription(m.getMenuDescription())

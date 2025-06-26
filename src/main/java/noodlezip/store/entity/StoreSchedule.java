@@ -18,8 +18,9 @@ public class StoreSchedule {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 복합키를 피하고 싶다면 이 필드 필요, 아니면 생략 가능
 
-    @Column(name = "store_id", nullable = false)
-    private Long storeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 
     @Column(name = "day_of_week", nullable = false)
     private String dayOfWeek;

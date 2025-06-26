@@ -20,9 +20,9 @@ public class Menu {
     @Column(name = "menu_id", nullable = false)
     private Long id;
 
-    @NotNull
-    @Column(name = "store_id", nullable = false)
-    private Long storeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 
     @Size(max = 30)
     @NotNull
