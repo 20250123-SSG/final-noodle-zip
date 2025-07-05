@@ -1,5 +1,6 @@
 package noodlezip.store.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import noodlezip.admin.dto.RegistListDto;
@@ -9,23 +10,36 @@ import noodlezip.common.util.FileUtil;
 import noodlezip.common.util.PageUtil;
 import noodlezip.ramen.dto.CategoryResponseDto;
 import noodlezip.ramen.dto.ToppingResponseDto;
-import noodlezip.ramen.entity.*;
+import noodlezip.ramen.entity.Category;
+import noodlezip.ramen.entity.RamenSoup;
+import noodlezip.ramen.entity.RamenTopping;
+import noodlezip.ramen.entity.Topping;
+import noodlezip.ramen.repository.RamenReviewRepository;
 import noodlezip.ramen.repository.RamenToppingRepository;
+import noodlezip.ramen.repository.ReviewToppingRepository;
 import noodlezip.ramen.repository.ToppingRepository;
 import noodlezip.ramen.service.RamenService;
-import noodlezip.store.dto.MenuRequestDto;
-import noodlezip.store.dto.StoreRequestDto;
-import noodlezip.store.entity.*;
-import noodlezip.store.repository.*;
+import noodlezip.store.dto.*;
+import noodlezip.store.entity.Menu;
+import noodlezip.store.entity.Store;
+import noodlezip.store.entity.StoreWeekSchedule;
+import noodlezip.store.entity.StoreWeekScheduleId;
+import noodlezip.store.repository.MenuRepository;
+import noodlezip.store.repository.StoreRepository;
+import noodlezip.store.repository.StoreWeekScheduleRepository;
+import noodlezip.store.status.ApprovalStatus;
 import noodlezip.user.entity.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -42,12 +56,15 @@ public class StoreService {
     private final PageUtil pageUtil;
     private final ToppingRepository toppingRepository;
     private final FileUtil fileUtil;
+    private final EntityManager em;
+    private final RamenReviewRepository ramenReviewRepository;
+    private final ReviewToppingRepository reviewToppingRepository;
 
     @Transactional(rollbackFor = Exception.class)
     public Long registerStore(StoreRequestDto dto, MultipartFile storeMainImage, User user) {
         String storeMainImageUrl = null;
 
-        // 대표 이미지 로컬 저장
+        // 매장 이미지 저장
         if (storeMainImage != null && !storeMainImage.isEmpty()) {
             try {
                 Map<String, String> uploadResult = fileUtil.fileupload("store", storeMainImage);
@@ -129,7 +146,7 @@ public class StoreService {
                 soup.setId(m.getRamenSoupId());
 
                 Menu menu = Menu.builder()
-                        .storeId(savedStore)
+                        .store(savedStore)
                         .menuName(m.getMenuName())
                         .price(m.getPrice())
                         .menuDescription(m.getMenuDescription())
@@ -155,7 +172,6 @@ public class StoreService {
         return savedStore.getId();
     }
 
-    // 삭제 메서드는 추가 기능(FileUtil에 추가 필요)
 
     // 라멘 카테고리 목록 조회
     public List<CategoryResponseDto> getRamenCategories() {
@@ -174,4 +190,53 @@ public class StoreService {
         map.put("registList", resultPage.getContent());
         return map;
     }
+
+    // ID로 활성화 된 매장 찾기
+    public StoreDto getStore(Long storeId) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new NoSuchElementException("해당 매장을 찾을 수 없습니다."));
+        if (!ApprovalStatus.APPROVED.equals(store.getApprovalStatus())) {
+            throw new IllegalStateException("승인되지 않은 매장은 조회할 수 없습니다.");
+        }
+
+        return StoreDto.toDto(store);
+    }
+
+    // 매장에서 메뉴 조회
+    public List<MenuDetailDto> getMenus(Long storeId) {
+        List<MenuDetailDto> menuList = menuRepository.findMenuDetailByStoreId(storeId);
+        Map<Long, List<String>> toppingMap = ramenToppingRepository.findToppingNamesByStoreGroupedByMenuId(storeId);
+
+        // 메뉴에 라멘토핑 맵핑
+        for (MenuDetailDto dto : menuList) {
+            List<String> toppings = toppingMap.getOrDefault(dto.getMenuId(), List.of());
+            dto.setToppingNames(toppings);
+        }
+
+        return menuList;
+    }
+
+    // 매장 리뷰 조회
+    public Page<StoreReviewDto> getReviews(Long storeId, Pageable pageable) {
+        // 1. 리뷰 + 메뉴 페이지 조회
+        Page<StoreReviewDto> page = ramenReviewRepository.findReviewsByStoreId(storeId, pageable);
+        List<StoreReviewDto> dtoList = page.getContent();
+
+        // 2. 리뷰 ID 목록 추출
+        List<Long> reviewIds = dtoList.stream()
+                .map(StoreReviewDto::getId)
+                .toList();
+
+        // 3. 토핑 조회
+        Map<Long, List<String>> toppingMap = reviewToppingRepository.findToppingNamesByReviewIds(reviewIds);
+
+        // 4. 병합
+        dtoList.forEach(dto -> dto.setToppingNames(
+                toppingMap.getOrDefault(dto.getId(), List.of())
+        ));
+
+        return new PageImpl<>(dtoList, pageable, page.getTotalElements());
+    }
+
+
 }

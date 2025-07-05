@@ -25,7 +25,7 @@ public class Menu extends BaseTimeEntity {
     // 여러 메뉴는 하나의 매장(Store)에 속한다
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)
-    private Store storeId;
+    private Store store;
 
     @Size(max = 30)
     @NotNull

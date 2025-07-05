@@ -43,10 +43,6 @@ public class SecurityConfig {
                                  "/search/**",
                                  "/store/**"
                                   ).permitAll()
-                    .requestMatchers("/", "/check-login-id", "/check-email", "/verify-email", "/signup", "/login",
-                            "/images/**", "/css/**", "/img/**", "/js/**", "/assets/**", "/v3/api-docs/**", "/swagger-ui/**",
-                            "/send-verification-code", "/fragments/**", "/search/**", "/store/**").permitAll()
-                    .requestMatchers("/css/**", "/js/**", "/assets/**").permitAll()
                     .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                     .requestMatchers("/user/**").hasAnyAuthority("NORMAL")
                     .requestMatchers("/board/**", "/comments/**").permitAll()

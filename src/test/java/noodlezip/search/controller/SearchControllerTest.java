@@ -92,7 +92,7 @@ class SearchControllerTest {
         // ─────── 4. 메뉴 저장 ───────
         Menu menu = menuRepository.save(
                 Menu.builder()
-                        .storeId(store)
+                        .store(store)
                         .menuName("기본라멘")
                         .price(9000)
                         .category(category)
@@ -228,7 +228,7 @@ class SearchControllerTest {
         Category category = categoryRepository.save(Category.builder().categoryName(categoryName).build());
         RamenSoup soup = ramenSoupRepository.save(RamenSoup.builder().soupName(soupName).build());
         Menu menu = menuRepository.save(Menu.builder()
-                .storeId(store)
+                .store(store)
                 .menuName("라멘")
                 .price(8000)
                 .category(category)

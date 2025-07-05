@@ -1,7 +1,6 @@
 package noodlezip.store.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import noodlezip.ramen.entity.Topping;
@@ -18,11 +17,11 @@ public class StoreExtraTopping {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)
-    private Store storeId;
+    private Store store;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topping_id", nullable = false)
-    private Topping toppingId;
+    private Topping topping;
 
     @Column(name = "price")
     private Integer price;

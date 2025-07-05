@@ -1,11 +1,18 @@
 package noodlezip.ramen.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import noodlezip.store.entity.Menu;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Entity
@@ -20,49 +27,58 @@ public class RamenReview {
     @Column(name = "community_id", nullable = false)
     private Long communityId;
 
-    @NotNull
-    @Column(name = "menu_id", nullable = false)
-    private Long menuId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "menu_id", insertable = false, updatable = false)
+    private Menu menu;
 
-    @Size(max = 50)
+    // 1 ~ 10 범위로 정수 저장
+    @Min(1)
+    @Max(10)
     @NotNull
-    @Column(name = "noodle_thickness", nullable = false, length = 50)
-    private String noodleThickness;
+    @Column(name = "noodle_thickness", nullable = false)
+    private Integer noodleThickness;
 
-    @Size(max = 50)
+    @Min(1)
+    @Max(10)
     @NotNull
-    @Column(name = "noodle_texture", nullable = false, length = 50)
-    private String noodleTexture;
+    @Column(name = "noodle_texture", nullable = false)
+    private Integer noodleTexture;
 
-    @Size(max = 50)
+    @Min(1)
+    @Max(10)
     @NotNull
-    @Column(name = "noodle_boil_level", nullable = false, length = 50)
-    private String noodleBoilLevel;
+    @Column(name = "noodle_boil_level", nullable = false)
+    private Integer noodleBoilLevel;
 
-    @Size(max = 50)
+    @Min(1)
+    @Max(10)
     @NotNull
-    @Column(name = "soup_density", nullable = false, length = 50)
-    private String soupDensity;
+    @Column(name = "soup_density", nullable = false)
+    private Integer soupDensity;
 
-    @Size(max = 50)
+    @Min(1)
+    @Max(10)
     @NotNull
-    @Column(name = "soup_temperature", nullable = false, length = 50)
-    private String soupTemperature;
+    @Column(name = "soup_temperature", nullable = false)
+    private Integer soupTemperature;
 
-    @Size(max = 50)
+    @Min(1)
+    @Max(10)
     @NotNull
-    @Column(name = "soup_saltiness", nullable = false, length = 50)
-    private String soupSaltiness;
+    @Column(name = "soup_saltiness", nullable = false)
+    private Integer soupSaltiness;
 
-    @Size(max = 50)
+    @Min(1)
+    @Max(10)
     @NotNull
-    @Column(name = "soup_spiciness_level", nullable = false, length = 50)
-    private String soupSpicinessLevel;
+    @Column(name = "soup_spiciness_level", nullable = false)
+    private Integer soupSpicinessLevel;
 
-    @Size(max = 50)
+    @Min(1)
+    @Max(10)
     @NotNull
-    @Column(name = "soup_oiliness", nullable = false, length = 50)
-    private String soupOiliness;
+    @Column(name = "soup_oiliness", nullable = false)
+    private Integer soupOiliness;
 
     @Size(max = 100)
     @Column(name = "soup_flavor_keywords", length = 100)

@@ -12,6 +12,6 @@ import lombok.Setter;
 public class LocationInfoDto {
     private Double storeLat;
     private Double storeLng;
-    private Integer storeLegalCode;
+    private Long storeLegalCode;
 }
 // 서버 응답용

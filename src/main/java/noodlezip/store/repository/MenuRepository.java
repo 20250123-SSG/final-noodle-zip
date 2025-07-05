@@ -1,8 +1,15 @@
 package noodlezip.store.repository;
 
 import noodlezip.store.entity.Menu;
-import org.aspectj.apache.bcel.Repository;
+import noodlezip.store.entity.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface MenuRepository extends JpaRepository<Menu, Long> {
+import java.util.List;
+
+@Repository
+public interface MenuRepository extends JpaRepository<Menu, Long>, MenuRepositoryCustom {
+
+    List<Menu> findMenuIdByStoreId(Store storeId);
+
 }

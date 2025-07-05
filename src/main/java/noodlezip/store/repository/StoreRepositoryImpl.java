@@ -129,7 +129,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom{
                             .from(storeExtraTopping)
                             .join(topping).on(topping.id.eq(storeExtraTopping.id))
                             .where(
-                                    storeExtraTopping.storeId.id.eq(store.id)
+                                    storeExtraTopping.store.id.eq(store.id)
                                             .and(topping.toppingName.in(filter.getTopping()))
                                             .and(topping.isActive.isTrue())
                             )
@@ -182,7 +182,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom{
                         distanceExpr.as("distance")
                 ))
                 .from(store)
-                .join(menu).on(menu.storeId.id.eq(store.id))
+                .join(menu).on(menu.store.id.eq(store.id))
                 .join(Category).on(menu.category.id.eq(Category.id))
                 .join(ramenSoup).on(menu.ramenSoup.id.eq(ramenSoup.id))
                 .leftJoin(ramenTopping).on(ramenTopping.menu.id.eq(menu.id))
@@ -197,7 +197,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom{
         long total = queryFactory
                 .select(store.countDistinct())
                 .from(store)
-                .join(menu).on(menu.storeId.id.eq(store.id))
+                .join(menu).on(menu.store.id.eq(store.id))
                 .join(Category).on(menu.category.id.eq(Category.id))
                 .join(ramenSoup).on(menu.ramenSoup.id.eq(ramenSoup.id))
                 .leftJoin(ramenTopping).on(ramenTopping.menu.id.eq(menu.id))

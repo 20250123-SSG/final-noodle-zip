@@ -62,10 +62,10 @@ public class LocationService {
                 .findFirst()
                 .orElse(null);
 
-        Integer legalCodeInt = null;
+        Long legalCodeInt = null;
         if (legalCode != null) {
             try {
-                legalCodeInt = Integer.parseInt(legalCode);
+                legalCodeInt = Long.parseLong(legalCode);
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("법정동 코드 변환 실패", e);
             }
