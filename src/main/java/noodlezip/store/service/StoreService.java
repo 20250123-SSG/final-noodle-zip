@@ -63,6 +63,8 @@ public class StoreService {
     private final StoreExtraToppingRepository storeExtraToppingRepository;
 
     @Transactional(rollbackFor = Exception.class)
+
+    // ❗ 매장 등록 ❗
     public Long registerStore(StoreRequestDto dto, User user) {
 
         log.debug("DTO: {}", dto);
@@ -241,7 +243,7 @@ public class StoreService {
         return savedStore.getId();
     }
 
-    // 매장 수정
+    // ❗ 매장 수정 ❗
 
     @Transactional(rollbackFor = Exception.class)
     public void updateStore(Long storeId, StoreRequestDto dto, MultipartFile storeMainImage, List<MultipartFile> menuImageFiles, User user) {           Store store = storeRepository.findById(storeId)
@@ -601,7 +603,7 @@ public class StoreService {
                 .build();
     }
 
-    // 매장 삭제
+    // ❗ 매장 삭제 ❗
     public List<StoreDto> getStoresByUserId(Long userId) {
         List<Store> stores = storeRepository.findByUserIdAndOperationStatusNot(userId, OperationStatus.CLOSED);
         return stores.stream()

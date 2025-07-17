@@ -11,13 +11,19 @@ import noodlezip.ramen.repository.RamenToppingRepository;
 import noodlezip.ramen.repository.ReviewToppingRepository;
 import noodlezip.ramen.repository.ToppingRepository;
 import noodlezip.ramen.service.RamenService;
+import noodlezip.store.dto.MenuRequestDto;
+import noodlezip.store.dto.StoreRequestDto;
 import noodlezip.store.dto.StoreReviewDto;
+import noodlezip.store.entity.Menu;
 import noodlezip.store.entity.Store;
 import noodlezip.store.entity.StoreExtraTopping;
 import noodlezip.store.repository.MenuRepository;
 import noodlezip.store.repository.StoreExtraToppingRepository;
 import noodlezip.store.repository.StoreRepository;
 import noodlezip.store.repository.StoreWeekScheduleRepository;
+import noodlezip.store.status.OperationStatus;
+import noodlezip.store.status.ParkingType;
+import noodlezip.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,16 +34,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class StoreServiceTest {
@@ -174,5 +183,74 @@ class StoreServiceTest {
 
         // when & then
         assertThrows(CustomException.class, () -> storeService.getStoreToppings(storeId));
+    }
+
+    @Test
+    void registerStore_정상등록_메뉴1개_이미지포함() {
+        // given
+        StoreRequestDto dto = new StoreRequestDto();
+        dto.setStoreName("테스트라멘");
+        dto.setAddress("서울시 중구");
+        dto.setPhone("010-1234-5678");
+        dto.setBizNum(1234567890L);
+        dto.setIsLocalCard(true);
+        dto.setIsChildAllowed(true);
+        dto.setHasParking(ParkingType.FREE);
+        dto.setOwnerComment("사장님 멘트");
+        dto.setStoreLat(37.123);
+        dto.setStoreLng(127.456);
+        dto.setOperationStatus(OperationStatus.OPEN);
+
+        MultipartFile storeMainImage = mock(MultipartFile.class);
+        when(storeMainImage.isEmpty()).thenReturn(false);
+        dto.setStoreMainImage(storeMainImage);
+
+        when(fileUtil.fileupload(anyString(), eq(storeMainImage)))
+                .thenReturn(Map.of("fileUrl", "https://your-bucket.s3.amazonaws.com/store-main.jpg"));
+
+        MenuRequestDto menuDto = new MenuRequestDto();
+        menuDto.setMenuName("카라미소라멘");
+        menuDto.setPrice(11000);
+        menuDto.setMenuDescription("매콤한 미소라멘");
+        menuDto.setRamenCategoryId(1);
+        menuDto.setRamenSoupId(1);
+
+        MultipartFile menuImage = mock(MultipartFile.class);
+        when(menuImage.isEmpty()).thenReturn(false);
+        menuDto.setMenuImageFile(menuImage);
+
+        when(fileUtil.fileupload(anyString(), eq(menuImage)))
+                .thenReturn(Map.of("fileUrl", "https://your-bucket.s3.amazonaws.com/menu1.jpg"));
+
+        dto.setMenus(List.of(menuDto));
+
+        when(toppingRepository.findAll()).thenReturn(List.of());
+
+        Store savedStore = Store.builder()
+                .id(1L)
+                .storeName("테스트라멘")
+                .userId(10L)
+                .build();
+        when(storeRepository.save(any())).thenReturn(savedStore);
+
+        Menu savedMenu = Menu.builder()
+                .id(100L)
+                .store(savedStore)
+                .menuName("카라미소라멘")
+                .price(11000)
+                .build();
+        when(menuRepository.save(any())).thenReturn(savedMenu);
+
+        User user = User.builder().id(10L).build();
+
+        // when
+        Long result = storeService.registerStore(dto, user);
+
+        // then
+        assertThat(result).isEqualTo(1L);
+        verify(fileUtil).fileupload(anyString(), eq(storeMainImage));
+        verify(fileUtil).fileupload(anyString(), eq(menuImage));
+        verify(menuRepository).save(any());
+        verify(ramenToppingRepository, never()).save(any());
     }
 }
