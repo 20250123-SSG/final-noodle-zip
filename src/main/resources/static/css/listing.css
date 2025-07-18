@@ -620,7 +620,7 @@ input[type="range"]:focus + .rangeslider .rangeslider__handle {
   background: white;
   position: relative;
   z-index: 999;
-  font-family: "Poppins", Helvetica, sans-serif;
+  font-family: "Fredoka", "Arita Dotum KR", Helvetica, sans-serif;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.12);
 }
 .marker_info img {

@@ -37,6 +37,48 @@ Author URI: http://themeforest.net/user/Ansonika/
 /* Boostrap Icons */
 @import url("bs-icon-font/bootstrap-icons.min.css");
 
+/* 한글 폰트 */
+@font-face {
+    font-family: 'Arita Dotum KR';
+    src: url('/font/AritaDotumKRLight.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Arita Dotum KR';
+    src: url('/font/AritaDotumKRSemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Arita Dotum KR';
+    src: url('/font/AritaDotumKRMedium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Arita Dotum KR';
+    src: url('/font/AritaDotumKRBold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Arita Dotum KR';
+    src: url('/font/AritaDotumKRThin.woff2') format('woff2');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+
 @font-face {
     font-family: Glyphter;
     src: url(icon_fonts/font/Glyphter.eot);
@@ -1683,7 +1725,7 @@ body {
     background: #fff;
     font-size: 14px;
     font-size: 0.875rem;
-    font-family: "Poppins", Helvetica, sans-serif;
+    font-family: "Fredoka", "Arita Dotum KR", "Poppins", Helvetica, sans-serif;
     color: #444;
 }
 
