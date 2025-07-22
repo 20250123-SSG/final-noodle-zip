@@ -58,28 +58,31 @@
 <!-- 푸터 -->
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 
+<div th:replace="~{fragments/alert-modal :: alertModal('successDeleteStore', '알림', '<p>가게가 성공적으로 삭제되었습니다!</p>', '확인', null)}"></div>
+<div th:replace="~{fragments/alert-modal :: alertModal('failDeleteStore', '알림', '', '확인', null)}"></div>
+
 <script>
     function deleteStore(storeId) {
-        if (!confirm("정말로 이 매장을 폐업하시겠습니까?")) return;
-
-        fetch(`/store/${storeId}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-            .then(res => {
-                if (res.ok) {
-                    alert("삭제 완료!");
-                    location.reload();
-                } else {
-                    alert("삭제에 실패했습니다.");
+        showConfirmModal('failDeleteStore', '정말로 이 매장을 폐업하시겠습니까?', () => {
+            fetch(`/store/${storeId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
                 }
             })
-            .catch(err => {
-                console.error("삭제 중 오류 발생:", err);
-                alert("오류가 발생했습니다.");
-            });
+                .then(res => {
+                    if (res.ok) {
+                        showConfirmModal('successDeleteStore', '삭제 완료!', () => {
+                            location.reload();
+                        });
+                    } else {
+                        showErrorModal('failDeleteStore', '삭제에 실패했습니다.');
+                    }
+                })
+                .catch(err => {
+                    showErrorModal('failDeleteStore', '오류가 발생했습니다.');
+                });
+        });
     }
 </script>
 <!-- COMMON SCRIPTS -->
