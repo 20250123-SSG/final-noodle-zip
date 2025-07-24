@@ -25,7 +25,7 @@ public class ViewCountService {
     // redis 접두사 및 만료 시간 세팅
     private static final String TOTAL_VIEW_KEY_SUFFIX = ":views:";
     private static final String VIEWED_CHECK_KEY_SUFFIX = ":viewed:";
-    private static final String BOARD_TOTAL_VIEW_KEY_PREFIX = "BOARD" + TOTAL_VIEW_KEY_SUFFIX;
+    private static final String BOARD_TOTAL_VIEW_KEY_PREFIX = "board" + TOTAL_VIEW_KEY_SUFFIX;
     private static final Pattern BOARD_ID_REGEX = Pattern.compile(BOARD_TOTAL_VIEW_KEY_PREFIX + "(\\d+)");
     // TTL value
     private static final Integer DUPLICATE_BOARD_VIEW_CHECK_TTL = 1;
@@ -73,29 +73,31 @@ public class ViewCountService {
 
         int updatedCount = 0;
         for (String key : viewCountKeys) {
+            System.out.println(key);
             try {
                 Matcher matcher = BOARD_ID_REGEX.matcher(key);
-                if (!matcher.matches()) {
+                if(matcher.find()) {
+                    Long boardId = Long.parseLong(matcher.group(1));
+
+
+                    Optional<String> viewCountDeltaStrOpt = redisRepository.get(key);
+
+                    if (viewCountDeltaStrOpt.isEmpty()) {
+                        log.debug("Redis 키 '{}'에 해당하는 값이 이미 없습니다. 스킵합니다.", key);
+                        redisRepository.delete(key);
+                        continue;
+                    }
+
+                    Long viewCountDelta = Long.parseLong(viewCountDeltaStrOpt.get());
+
+                    boardRepository.increaseViewCount(boardId, viewCountDelta);
+                    updatedCount++;
+
+                    redisRepository.delete(key);
+                }else {
                     log.warn("유효하지 않은 Redis 조회수 키 패턴 발견: {}. Redis에서 삭제합니다.", key);
                     redisRepository.delete(key);
-                    continue;
                 }
-                Long boardId = Long.parseLong(matcher.group(1));
-
-                Optional<String> viewCountDeltaStrOpt = redisRepository.get(key);
-
-                if (viewCountDeltaStrOpt.isEmpty()) {
-                    log.debug("Redis 키 '{}'에 해당하는 값이 이미 없습니다. 스킵합니다.", key);
-                    redisRepository.delete(key);
-                    continue;
-                }
-
-                Long viewCountDelta = Long.parseLong(viewCountDeltaStrOpt.get());
-
-                boardRepository.increaseViewCount(boardId, viewCountDelta);
-                updatedCount++;
-
-                redisRepository.delete(key);
 
             } catch (NumberFormatException e) {
                 log.error("Redis 키 '{}'의 값이 유효한 숫자가 아닙니다. (값: {}) 키를 삭제합니다. 오류: {}", key, redisRepository.get(key).orElse("N/A"), e.getMessage());
