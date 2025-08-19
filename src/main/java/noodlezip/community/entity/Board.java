@@ -73,4 +73,8 @@ public class Board extends BaseTimeEntity {
     @Column(name = "ocr_key_hash")
     private String ocrKeyHash;
 
+    @Version
+    @Column(name = "version")
+    private Integer version;
+
 }

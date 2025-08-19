@@ -52,6 +52,8 @@ public class QBoard extends EntityPathBase<Board> {
 
     public final noodlezip.user.entity.QUser user;
 
+    public final NumberPath<Integer> version = createNumber("version", Integer.class);
+
     public final NumberPath<Integer> viewsCount = createNumber("viewsCount", Integer.class);
 
     public QBoard(String variable) {
