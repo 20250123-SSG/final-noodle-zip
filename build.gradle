@@ -59,6 +59,12 @@ dependencies {
 	implementation 'javax.xml.bind:jaxb-api:2.3.0'
 	// jsoup 통해 html 정제
 	implementation 'org.jsoup:jsoup:1.17.2'
+
+	// retry
+	implementation 'org.springframework.retry:spring-retry'
+
+	// Spring Retry가 AOP를 통해 동작하도록 하는 의존성
+	implementation 'org.springframework:spring-aspects'
 }
 
 tasks.named('test') {

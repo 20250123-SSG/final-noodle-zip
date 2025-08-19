@@ -1,5 +1,6 @@
 package noodlezip.community.service;
 
+import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import noodlezip.badge.publisher.BadgeEventPublisher;
@@ -35,6 +36,8 @@ import org.jsoup.safety.Safelist;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -267,6 +270,7 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Retryable(value = {ObjectOptimisticLockingFailureException.class, OptimisticLockException.class}, maxAttempts = 5)
     public boolean toggleLike(BoardUserId boardUserId) {
         Board board = boardRepository.findById(boardUserId.getCommunityId())
                 .orElseThrow(() -> new CustomException(ErrorStatus._DATA_NOT_FOUND));
